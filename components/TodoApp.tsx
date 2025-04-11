@@ -1,6 +1,5 @@
 // components/TodoApp.tsx
 "use client";
-
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import TodoFilters, { Filters } from "./TodoFilters";
@@ -10,11 +9,14 @@ import { useTodos } from "@/context/TodoContext";
 
 export default function TodoApp() {
   const router = useRouter();
-  const { tasks, setTasks } = useTodos(); // We'll add setTasks to our context for import/export
+  const { tasks, setTasks } = useTodos();
+  
+  // Initialize default filters with priority included.
   const [filters, setFilters] = useState<Filters>({
     status: [],
     date: undefined,
     categories: [],
+    priority: [],
   });
 
   // Export todos as JSON
@@ -37,7 +39,6 @@ export default function TodoApp() {
       reader.onload = (evt) => {
         try {
           const importedTodos = JSON.parse(evt.target?.result as string);
-          // Overwrite the current todos
           setTasks(importedTodos);
         } catch (error) {
           console.error("Invalid JSON file");

@@ -7,24 +7,24 @@ import TodoApp from "@/components/TodoApp";
 import Toast from "@/components/Toast";
 
 export default function HomePage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
-  // Redirect to login if not authenticated.
+  // Do not redirect while auth is still loading.
   useEffect(() => {
-    if (!user) {
+    if (!loading && !user) {
       router.push("/login");
     }
-  }, [user, router]);
+  }, [user, loading, router]);
+
+  if (loading) return <div>Loading...</div>;
 
   if (!user) return <div>Loading...</div>;
 
   return (
-    <div>
-      {/* Render the dashboard – includes filters, stats, task list and add-task button */}
+    <>
       <TodoApp />
-      {/* Toast notifications container */}
       <Toast />
-    </div>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 // context/TodoContext.tsx
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { useAuth } from "./AuthContext";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface Task {
   id: string;
@@ -11,8 +12,7 @@ export interface Task {
   updatedAt: string;
   dueDate?: string;
   category: string;
-  priority: "high" | "medium" | "low";
-  notes?: string;
+  priority: 'high' | 'medium' | 'low';
 }
 
 interface TodoContextType {
@@ -20,7 +20,7 @@ interface TodoContextType {
   setTasks: (tasks: Task[]) => void;
   addTask: (task: Task) => void;
   updateTask: (task: Task) => void;
-  deleteTask: (taskId: string) => void;
+  deleteTask: (id: string) => void;
   reorderTasks: (startIndex: number, endIndex: number) => void;
 }
 
@@ -33,11 +33,7 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (user) {
       const stored = localStorage.getItem(`tasks_${user.id}`);
-      if (stored) {
-        setTasks(JSON.parse(stored));
-      } else {
-        setTasks([]);
-      }
+      if (stored) setTasks(JSON.parse(stored));
     }
   }, [user]);
 
@@ -48,32 +44,23 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [tasks, user]);
 
   const addTask = (task: Task) => {
-    setTasks((prev) => [...prev, task]);
+    if (!task.id) task.id = uuidv4();
+    setTasks([...tasks, task]);
   };
 
   const updateTask = (updatedTask: Task) => {
-    setTasks((prev) =>
-      prev.map((task) => (task.id === updatedTask.id ? updatedTask : task))
-    );
+    setTasks(tasks.map(task => (task.id === updatedTask.id ? updatedTask : task)));
   };
 
-  // Remove only the first occurrence of a task with the given id.
-  const deleteTask = (taskId: string) => {
-    const index = tasks.findIndex((task) => task.id === taskId);
-    if (index !== -1) {
-      setTasks((prev) => {
-        const updated = [...prev];
-        updated.splice(index, 1);
-        return updated;
-      });
-    }
+  const deleteTask = (id: string) => {
+    setTasks(tasks.filter(task => task.id !== id));
   };
 
   const reorderTasks = (startIndex: number, endIndex: number) => {
-    const updatedTasks = Array.from(tasks);
-    const [removed] = updatedTasks.splice(startIndex, 1);
-    updatedTasks.splice(endIndex, 0, removed);
-    setTasks(updatedTasks);
+    const updated = Array.from(tasks);
+    const [removed] = updated.splice(startIndex, 1);
+    updated.splice(endIndex, 0, removed);
+    setTasks(updated);
   };
 
   return (
@@ -83,9 +70,8 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-export const useTodos = (): TodoContextType => {
+export const useTodos = () => {
   const context = useContext(TodoContext);
-  if (!context)
-    throw new Error("useTodos must be used within a TodoProvider");
+  if (!context) throw new Error('useTodos must be used within a TodoProvider');
   return context;
 };

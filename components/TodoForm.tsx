@@ -1,4 +1,3 @@
-// components/TodoForm.tsx
 "use client";
 import { useState } from "react";
 import { useTodos, Task } from "@/context/TodoContext";
@@ -23,7 +22,7 @@ export default function TodoForm({ task, updateTask }: TodoFormProps) {
   const [priority, setPriority] = useState<"high" | "medium" | "low">(
     task?.priority || "medium"
   );
-  // If user already had a category in the task, default to that. Otherwise, pick the first category or empty if none exist.
+  // Default to the existing category, or first category if available
   const [category, setCategory] = useState(task?.category || categories[0] || "");
 
   // Modal state for new category
@@ -42,7 +41,6 @@ export default function TodoForm({ task, updateTask }: TodoFormProps) {
       dueDate,
       category,
       priority,
-      notes: "",
     };
     if (isEditing && updateTask) {
       updateTask(newTask);
@@ -81,7 +79,7 @@ export default function TodoForm({ task, updateTask }: TodoFormProps) {
         </label>
         <input
           type="text"
-          className="w-full p-2 border rounded mt-1"
+          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded mt-1"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
@@ -92,7 +90,7 @@ export default function TodoForm({ task, updateTask }: TodoFormProps) {
           Description
         </label>
         <textarea
-          className="w-full p-2 border rounded mt-1"
+          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded mt-1"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         ></textarea>
@@ -104,7 +102,7 @@ export default function TodoForm({ task, updateTask }: TodoFormProps) {
           </label>
           <input
             type="date"
-            className="w-full p-2 border rounded mt-1"
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded mt-1"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
           />
@@ -114,7 +112,7 @@ export default function TodoForm({ task, updateTask }: TodoFormProps) {
             Category
           </label>
           <select
-            className="w-full p-2 border rounded mt-1"
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200"
             value={category}
             onChange={(e) => handleCategoryChange(e.target.value)}
           >
@@ -132,7 +130,7 @@ export default function TodoForm({ task, updateTask }: TodoFormProps) {
           Priority
         </label>
         <select
-          className="w-full p-2 border rounded mt-1"
+          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200"
           value={priority}
           onChange={(e) => setPriority(e.target.value as "high" | "medium" | "low")}
         >
@@ -157,7 +155,7 @@ export default function TodoForm({ task, updateTask }: TodoFormProps) {
             </h2>
             <input
               type="text"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded"
               placeholder="Enter category name"
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
@@ -166,7 +164,7 @@ export default function TodoForm({ task, updateTask }: TodoFormProps) {
               <button
                 type="button"
                 onClick={() => setShowCategoryModal(false)}
-                className="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="px-4 py-2 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600"
               >
                 Cancel
               </button>

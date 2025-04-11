@@ -28,7 +28,7 @@ export default function EditTaskPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">Edit Task</h2>
+      <h2 className="text-2xl font-bold mb-4 dark:text-gray-100">Edit Task</h2>
       <TodoForm task={currentTask} updateTask={updateTask} />
     </div>
   );

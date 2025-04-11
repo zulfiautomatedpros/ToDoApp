@@ -1,31 +1,24 @@
 // context/CategoryContext.tsx
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { useAuth } from "./AuthContext";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
 interface CategoryContextType {
   categories: string[];
   addCategory: (cat: string) => void;
 }
 
-const CategoryContext = createContext<CategoryContextType | undefined>(
-  undefined
-);
+const CategoryContext = createContext<CategoryContextType | undefined>(undefined);
 
-export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
-  const defaultCategories = ["Personal", "Work", "Shopping"];
+  const defaultCategories = ['Personal', 'Work', 'Shopping'];
   const [categories, setCategories] = useState<string[]>(defaultCategories);
 
   useEffect(() => {
     if (user) {
       const stored = localStorage.getItem(`categories_${user.id}`);
-      if (stored) {
-        setCategories(JSON.parse(stored));
-      } else {
-        setCategories(defaultCategories);
-      }
+      if (stored) setCategories(JSON.parse(stored));
+      else setCategories(defaultCategories);
     }
   }, [user]);
 
@@ -36,21 +29,14 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [categories, user]);
 
   const addCategory = (cat: string) => {
-    if (!categories.includes(cat)) {
-      setCategories((prev) => [...prev, cat]);
-    }
+    if (!categories.includes(cat)) setCategories([...categories, cat]);
   };
 
-  return (
-    <CategoryContext.Provider value={{ categories, addCategory }}>
-      {children}
-    </CategoryContext.Provider>
-  );
+  return <CategoryContext.Provider value={{ categories, addCategory }}>{children}</CategoryContext.Provider>;
 };
 
-export const useCategory = (): CategoryContextType => {
+export const useCategory = () => {
   const context = useContext(CategoryContext);
-  if (!context)
-    throw new Error("useCategory must be used within a CategoryProvider");
+  if (!context) throw new Error('useCategory must be used within a CategoryProvider');
   return context;
 };

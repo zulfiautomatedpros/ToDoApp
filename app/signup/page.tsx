@@ -20,45 +20,45 @@ export default function SignupPage() {
 
   return (
     <div className="max-w-md mx-auto p-4 bg-white dark:bg-gray-800 rounded shadow">
-      <h2 className="text-2xl mb-4 font-bold">Sign Up</h2>
+      <h2 className="text-2xl mb-4 font-bold dark:text-gray-100">Sign Up</h2>
       <form onSubmit={handleSubmit}>
-        <label className="block mb-2">
+        <label className="block mb-2 dark:text-gray-100">
           Name:
           <input
             type="text"
-            className="w-full p-2 border rounded mt-1"
+            className="w-full p-2 border border-gray-300 dark:border-gray-600  rounded mt-1"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
         </label>
-        <label className="block mb-2">
+        <label className="block mb-2 dark:text-gray-100">
           Email:
           <input
             type="email"
-            className="w-full p-2 border rounded mt-1"
+            className="w-full p-2 border border-gray-300 dark:border-gray-600  rounded mt-1"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </label>
-        <label className="block mb-2">
+        <label className="block mb-2 dark:text-gray-100">
           Password:
           <input
             type="password"
-            className="w-full p-2 border rounded mt-1"
+            className="w-full p-2 border border-gray-300 dark:border-gray-600  rounded mt-1"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </label>
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded mt-4">
+        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded mt-4 dark:text-gray-100">
           Sign Up
         </button>
       </form>
-      <p className="mt-4">
+      <p className="mt-4 dark:text-gray-100">
         Already have an account?{" "}
-        <a href="/login" className="text-blue-500 underline">
+        <a href="/login" className="text-blue-500 underline dark:text-gray-100">
           Sign In
         </a>
       </p>

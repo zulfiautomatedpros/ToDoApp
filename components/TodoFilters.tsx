@@ -1,12 +1,12 @@
-// components/TodoFilters.tsx
 "use client";
-
 import { useCategory } from "@/context/CategoryContext";
+import DropdownMultiSelect from "./DropdownMultiSelect";
 
 export interface Filters {
   status: ("pending" | "completed")[];
-  date?: "today" | "overdue";
+  date?: "today" | "overdue" | "thisWeek" | "thisMonth";
   categories: string[];
+  priority: ("high" | "medium" | "low")[];
 }
 
 interface TodoFiltersProps {
@@ -14,121 +14,110 @@ interface TodoFiltersProps {
   onFilterChange: (filters: Filters) => void;
 }
 
+const statusOptions: ("pending" | "completed")[] = ["pending", "completed"];
+const priorityOptions: ("high" | "medium" | "low")[] = ["high", "medium", "low"];
+const dateOptions = [
+  { label: "None", value: "none" },
+  { label: "Today", value: "today" },
+  { label: "Overdue", value: "overdue" },
+  { label: "This Week", value: "thisWeek" },
+  { label: "This Month", value: "thisMonth" },
+];
+
 export default function TodoFilters({ filters, onFilterChange }: TodoFiltersProps) {
   const { categories } = useCategory();
 
-  const toggleStatus = (status: "pending" | "completed") => {
-    const updatedStatus = filters.status.includes(status)
-      ? filters.status.filter((s) => s !== status)
-      : [...filters.status, status];
-    onFilterChange({ ...filters, status: updatedStatus });
+  const handleStatusChange = (selected: string[]) => {
+    onFilterChange({ ...filters, status: selected as ("pending" | "completed")[] });
   };
 
-  const setDateFilter = (date?: "today" | "overdue") => {
-    onFilterChange({ ...filters, date });
+  const handlePriorityChange = (selected: string[]) => {
+    onFilterChange({ ...filters, priority: selected as ("high" | "medium" | "low")[] });
   };
 
-  const toggleCategory = (cat: string) => {
-    const updatedCategories = filters.categories.includes(cat)
-      ? filters.categories.filter((c) => c !== cat)
-      : [...filters.categories, cat];
-    onFilterChange({ ...filters, categories: updatedCategories });
+  const handleCategoryChange = (selected: string[]) => {
+    onFilterChange({ ...filters, categories: selected });
   };
+
+  const handleDateChange = (value: string) => {
+    onFilterChange({
+      ...filters,
+      date: value === "none" ? undefined : (value as Filters["date"]),
+    });
+  };
+
+  const isFilterApplied =
+    filters.status.length > 0 ||
+    filters.date !== undefined ||
+    filters.categories.length > 0 ||
+    filters.priority.length > 0;
 
   const resetFilters = () => {
-    onFilterChange({ status: [], date: undefined, categories: [] });
+    onFilterChange({
+      status: [],
+      date: undefined,
+      categories: [],
+      priority: [],
+    });
   };
 
   return (
     <div className="flex flex-col gap-4">
       {/* Status Filter */}
-      <div className="flex flex-col gap-1">
-        <span className="font-semibold text-gray-700 dark:text-gray-300">Status:</span>
-        <div className="flex gap-2">
-          <button
-            onClick={() => toggleStatus("pending")}
-            className={`px-3 py-1 border rounded transition-colors ${
-              filters.status.includes("pending")
-                ? "bg-blue-500 text-white border-blue-500"
-                : "hover:bg-blue-50 dark:hover:bg-gray-700"
-            }`}
-          >
-            Pending
-          </button>
-          <button
-            onClick={() => toggleStatus("completed")}
-            className={`px-3 py-1 border rounded transition-colors ${
-              filters.status.includes("completed")
-                ? "bg-blue-500 text-white border-blue-500"
-                : "hover:bg-blue-50 dark:hover:bg-gray-700"
-            }`}
-          >
-            Completed
-          </button>
-        </div>
-      </div>
+      <DropdownMultiSelect
+        label="Status"
+        options={statusOptions}
+        selected={filters.status}
+        onChange={handleStatusChange}
+      />
 
-      {/* Date Filter */}
-      <div className="flex flex-col gap-1">
-        <span className="font-semibold text-gray-700 dark:text-gray-300">Date Filter:</span>
-        <div className="flex flex-col gap-1">
-          <label className="inline-flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              name="dateFilter"
-              value="none"
-              checked={!filters.date}
-              onChange={() => setDateFilter(undefined)}
-            />
-            None
-          </label>
-          <label className="inline-flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              name="dateFilter"
-              value="today"
-              checked={filters.date === "today"}
-              onChange={() => setDateFilter("today")}
-            />
-            Today
-          </label>
-          <label className="inline-flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              name="dateFilter"
-              value="overdue"
-              checked={filters.date === "overdue"}
-              onChange={() => setDateFilter("overdue")}
-            />
-            Overdue
-          </label>
-        </div>
+      {/* Date Filter as a native dropdown */}
+      <div>
+        <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">
+          Date Filter
+        </label>
+        <select
+          value={filters.date || "none"}
+          onChange={(e) => handleDateChange(e.target.value)}
+          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200"
+        >
+          {dateOptions.map((option) => (
+            <option 
+              key={option.value} 
+              value={option.value}
+              className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200"
+            >
+              {option.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Category Filter */}
-      <div className="flex flex-col gap-1">
-        <span className="font-semibold text-gray-700 dark:text-gray-300">Categories:</span>
-        <div className="flex flex-wrap gap-2">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => toggleCategory(cat)}
-              className={`px-3 py-1 rounded border transition-colors ${
-                filters.categories.includes(cat)
-                  ? "bg-green-500 text-white border-green-500"
-                  : "hover:bg-green-50 dark:hover:bg-gray-700"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
+      <DropdownMultiSelect
+        label="Categories"
+        options={categories}
+        selected={filters.categories}
+        onChange={handleCategoryChange}
+      />
 
-      {/* Reset Button */}
+      {/* Priority Filter */}
+      <DropdownMultiSelect
+        label="Priority"
+        options={priorityOptions}
+        selected={filters.priority}
+        onChange={handlePriorityChange}
+      />
+
+      {/* Reset Filters Button */}
       <button
         onClick={resetFilters}
-        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded self-start transition-colors font-medium"
+        disabled={!isFilterApplied}
+        className={`mt-4 w-full p-2 rounded transition-colors ${
+          isFilterApplied
+            ? "bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
+            : "bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 cursor-not-allowed"
+        }`}
       >
         Reset Filters
       </button>
