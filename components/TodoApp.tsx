@@ -1,17 +1,23 @@
-// components/TodoApp.tsx
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import TodoFilters, { Filters } from "./TodoFilters";
 import TodoList from "./TodoList";
 import DashboardStats from "./DashboardStats";
-import { useTodos } from "@/context/TodoContext";
+import { useTodos, Task } from "@/context/TodoContext";
+import { v4 as uuidv4 } from "uuid";
+
+
+const parseDate = (dateValue: any): string => {
+  const d = new Date(dateValue);
+  return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+};
 
 export default function TodoApp() {
   const router = useRouter();
   const { tasks, setTasks } = useTodos();
   
-  // Initialize default filters with priority included.
+  
   const [filters, setFilters] = useState<Filters>({
     status: [],
     date: undefined,
@@ -19,7 +25,7 @@ export default function TodoApp() {
     priority: [],
   });
 
-  // Export todos as JSON
+  // Export todos as JSON.
   const exportTodos = () => {
     const dataStr = JSON.stringify(tasks, null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
@@ -31,17 +37,28 @@ export default function TodoApp() {
     URL.revokeObjectURL(url);
   };
 
-  // Import todos from JSON
+  // Import todos from JSON with new unique ids and date conversion.
   const importTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (evt) => {
         try {
-          const importedTodos = JSON.parse(evt.target?.result as string);
-          setTasks(importedTodos);
+          const importedData = JSON.parse(evt.target?.result as string);
+         
+          if (!Array.isArray(importedData)) {
+            throw new Error("Imported JSON is not an array");
+          }
+          const newTodos: Task[] = importedData.map((task: Task) => ({
+            ...task,
+            id: uuidv4(),
+            createdAt: parseDate(task.createdAt),
+            updatedAt: parseDate(task.updatedAt),
+            dueDate: task.dueDate ? parseDate(task.dueDate) : undefined,
+          }));
+          setTasks(newTodos);
         } catch (error) {
-          console.error("Invalid JSON file");
+          console.error("Invalid JSON file", error);
         }
       };
       reader.readAsText(file);
@@ -90,7 +107,7 @@ export default function TodoApp() {
           </div>
         </div>
 
-        {/* Task List */}
+        
         <div className="bg-white dark:bg-gray-800 p-4 rounded shadow border border-gray-200 dark:border-gray-700">
           <TodoList filters={filters} />
         </div>

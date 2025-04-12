@@ -85,14 +85,14 @@ export default function TodoList({ filters }: TodoListProps) {
           (filters.status.includes("completed") && task.completed);
         if (!statusMatch) return false;
       }
-      
+
       // Date filtering.
       if (filters.date) {
         if (!task.dueDate) return false;
         const taskDate = new Date(task.dueDate);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        
+
         if (filters.date === "today" && taskDate.toLocaleDateString() !== today.toLocaleDateString()) return false;
         if (filters.date === "overdue" && (task.completed || taskDate >= today)) return false;
         if (filters.date === "thisWeek") {
@@ -109,13 +109,13 @@ export default function TodoList({ filters }: TodoListProps) {
           if (taskDate < startOfMonth || taskDate > endOfMonth) return false;
         }
       }
-      
+
       // Category filtering.
       if (filters.categories.length > 0 && !filters.categories.includes(task.category)) return false;
-      
+
       // Priority filtering.
       if (filters.priority.length > 0 && !filters.priority.includes(task.priority)) return false;
-      
+
       return true;
     });
   }, [tasks, filters]);
@@ -165,7 +165,8 @@ export default function TodoList({ filters }: TodoListProps) {
   };
 
   return (
-    <div className="space-y-2">
+    // Updated main container: Uses a contrasting background for dark mode.
+    <div className="space-y-2 bg-gray-50 dark:bg-gray-800 p-4 rounded">
       {filteredTasks.map((task, index) => {
         // Compute elapsed time.
         const timer = timers[task.id];
@@ -184,12 +185,14 @@ export default function TodoList({ filters }: TodoListProps) {
             className="p-4 bg-white dark:bg-gray-700 rounded shadow flex justify-between items-center gap-4 cursor-move"
           >
             <div className="flex-1">
-              <h3 className={`font-bold ${task.completed ? "line-through" : ""}`}>
+              <h3 className={`font-bold text-gray-900 dark:text-gray-100 ${task.completed ? "line-through" : ""}`}>
                 {task.title}
               </h3>
-              <p className="text-sm">{task.description}</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                {task.description}
+              </p>
               {task.dueDate && (
-                <small className="text-gray-500">
+                <small className="text-gray-500 dark:text-gray-400">
                   Due: {new Date(task.dueDate).toLocaleDateString()}
                 </small>
               )}
@@ -243,8 +246,8 @@ export default function TodoList({ filters }: TodoListProps) {
         );
       })}
       {filteredTasks.length === 0 && (
-        <p className="text-gray-500 italic">
-          No tasks found with the current filters.
+        <p className="text-gray-500 dark:text-gray-400 italic">
+          No tasks found.
         </p>
       )}
     </div>

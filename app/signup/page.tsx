@@ -13,7 +13,7 @@ export default function SignupPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // For demo purposes, simulate signup.
+    
     signup({ id: email, name, email, password });
     router.push("/");
   };

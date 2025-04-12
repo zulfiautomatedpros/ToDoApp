@@ -8,27 +8,41 @@ export default function DashboardStats() {
   const [viewMode, setViewMode] = useState<"text" | "graph">("text");
 
   const now = new Date();
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay());
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
+  
+  const startOfDayTimestamp = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+  
+  const currentDay = now.getDay() === 0 ? 7 : now.getDay(); 
+  const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - currentDay + 1);
+  const startOfWeekTimestamp = startOfWeek.getTime();
+
+  
+  const startOfMonthTimestamp = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+  
+  const startOfYearTimestamp = new Date(now.getFullYear(), 0, 1).getTime();
+
+  
   const stats = useMemo(() => {
-    const calc = (startDate: Date) => {
-      const periodTasks = tasks.filter(
-        (task) => new Date(task.createdAt) >= startDate
-      );
+    const calc = (startTimestamp: number) => {
+      
+      const periodTasks = tasks.filter((task) => {
+        const updated = Date.parse(task.updatedAt);
+        return !isNaN(updated) && updated >= startTimestamp;
+      });
       const completed = periodTasks.filter((task) => task.completed).length;
       return periodTasks.length > 0
         ? Math.round((completed / periodTasks.length) * 100)
         : 0;
     };
     return {
-      daily: calc(startOfDay),
-      weekly: calc(startOfWeek),
-      monthly: calc(startOfMonth),
+      daily: calc(startOfDayTimestamp),
+      weekly: calc(startOfWeekTimestamp),
+      monthly: calc(startOfMonthTimestamp),
+      yearly: calc(startOfYearTimestamp),
     };
-  }, [tasks]);
+  }, [tasks, startOfDayTimestamp, startOfWeekTimestamp, startOfMonthTimestamp, startOfYearTimestamp]);
 
   const toggleViewMode = () => {
     setViewMode((prev) => (prev === "text" ? "graph" : "text"));
@@ -49,29 +63,31 @@ export default function DashboardStats() {
       </div>
 
       {viewMode === "text" ? (
-        <div className="flex justify-around items-center text-center text-gray-700 dark:text-gray-100">
-          <div className="flex flex-col">
+        <div className="flex flex-wrap justify-around items-center text-center text-gray-700 dark:text-gray-100">
+          <div className="flex flex-col m-2">
             <span className="text-sm">Today</span>
             <span className="text-xl font-semibold">{stats.daily}%</span>
           </div>
-          <div className="h-6 w-px bg-gray-200 dark:bg-gray-500 mx-2"></div>
-          <div className="flex flex-col">
+          <div className="flex flex-col m-2">
             <span className="text-sm">This Week</span>
             <span className="text-xl font-semibold">{stats.weekly}%</span>
           </div>
-          <div className="h-6 w-px bg-gray-200 dark:bg-gray-500 mx-2"></div>
-          <div className="flex flex-col">
+          <div className="flex flex-col m-2">
             <span className="text-sm">This Month</span>
             <span className="text-xl font-semibold">{stats.monthly}%</span>
+          </div>
+          <div className="flex flex-col m-2">
+            <span className="text-sm">This Year</span>
+            <span className="text-xl font-semibold">{stats.yearly}%</span>
           </div>
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          {/* Graph view: a simple horizontal bar graph for each stat */}
           {[
             { label: "Today", value: stats.daily },
             { label: "This Week", value: stats.weekly },
             { label: "This Month", value: stats.monthly },
+            { label: "This Year", value: stats.yearly },
           ].map((item) => (
             <div key={item.label}>
               <div className="flex justify-between mb-1">
