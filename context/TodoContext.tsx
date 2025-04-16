@@ -2,6 +2,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { v4 as uuidv4 } from 'uuid';
+export interface Subtask {
+  id: string;
+  title: string;
+  completed: boolean;
+}
 
 export interface Task {
   id: string;
@@ -13,6 +18,7 @@ export interface Task {
   dueDate?: string;
   category: string;
   priority: 'high' | 'medium' | 'low';
+  subtasks?: Subtask[];
 }
 
 interface TodoContextType {
